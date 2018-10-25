@@ -1,0 +1,8 @@
+node_modules/**
+dist/**
+lib/**
+math-input/**
+css/**
+dist/**
+plugin/**
+img/**
