@@ -1,9 +1,11 @@
 ﻿import React from 'react';
 import *as action from '../Action/';
 import {connect} from 'react-redux';
-import { List, NavBar, Icon, Progress, WhiteSpace, ActivityIndicator, Button, Flex, Modal, TextareaItem, PickerView } from 'antd-mobile';
-
+import { List, NavBar, Progress, WhiteSpace, ActivityIndicator, Flex, Modal, TextareaItem, PickerView } from 'antd-mobile';
+import {Button,Icon} from 'antd'
 import Reveal from 'reveal.js';
+import config from '../utils/Config'
+let target = config.www_url;
 
 
 const Item = List.Item;
@@ -35,7 +37,7 @@ class revealDemo extends React.Component {
     const {student_id, params} = this.props;
     const {lesson_slide_id} = params;
     this.props.getLessonSlide(lesson_slide_id);
-    this.props.getSlideFeedback(lesson_slide_id, 1);
+    this.props.getSlideFeedback(lesson_slide_id, '1');
   }
 
   componentDidUpdate(prevProps){
@@ -51,13 +53,14 @@ class revealDemo extends React.Component {
 
           // More info https://github.com/hakimel/reveal.js#dependencies
           dependencies: [
-            { src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
-            { src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-            { src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-            { src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-            { src: '/plugin/search/search.js', async: true },
-            { src: '/plugin/zoom-js/zoom.js', async: true },
-            { src: '/plugin/notes/notes.js', async: true }
+            { src: target + '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+            { src: target + '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+            { src: target + '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+            { src: target + '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+            { src: target + '/plugin/search/search.js', async: true },
+            { src: target + '/plugin/zoom-js/zoom.js', async: true },
+            { src: target + '/plugin/notes/notes.js', async: true },
+            { src: target + '/plugin/math/math.js', async: true }
           ]
         });
         var total = Reveal.getTotalSlides();
@@ -81,6 +84,10 @@ class revealDemo extends React.Component {
     });
   }
 
+  openTestPage(testid){ //http://www.zhiqiu.pro/mobile-zq/question/139
+    window.open("http://www.zhiqiu.pro/mobile-zq/question/"+testid);   
+  }
+
   renderLessonTest(){
     const {lesson_test} = this.props;
     
@@ -90,7 +97,7 @@ class revealDemo extends React.Component {
             multipleLine 
             arrow="horizontal"
             // extra={<Button type="primary" size='small' inline>开始</Button>}
-            onClick={e => this.props.router.push("/mobile-zq/question/"+item.test_id)}
+            onClick={e => this.openTestPage(item.test_id)}
             style = {{border:"1px solid #888",borderRadius: "5px",margin :"0rem 0rem"}}
           >
             {item.test_name}
@@ -110,24 +117,66 @@ class revealDemo extends React.Component {
     })
   }
   
-  feedbackQ(){
-    this.setState({click: true});
+  feedbackQ(lesson_slide_id,q,indexh,userid){
+    // this.props.addQ();
+    this.props.updateQ(lesson_slide_id,q,indexh,'1');
+    // this.setState({click: true});
   }
 
   render() {
-    const {lesson_slide, slide_feedback} = this.props;
+    const {lesson_slide, slide_feedback, params} = this.props;
+    const {lesson_slide_id} = params;
     var index = Reveal.getIndices();
+    console.log("index.h1:  ",index.h);
     if(!index.h)index = {h: 0};
+    console.log("index.h2:  ",index.h);
 
-    var feedback = slide_feedback[index.h] ? slide_feedback[index.h] : {L: 0, Q: 0, my: -1};
+    var feedback = slide_feedback[index.h] ? slide_feedback[index.h] : {Q: 0, my: false};
 
-    console.log(slide_feedback);
+    console.log("slide_feedback: ",JSON.stringify(slide_feedback));
+    console.log("feedback: ",JSON.stringify(feedback));
 
     return (
     <div>
       <div dangerouslySetInnerHTML={{__html: lesson_slide.content}} />
-      <Button style={{zIndex: 3}} inline type="ghost" onClick={this.showModal('modal2')}>basic</Button>
-      <div style={{color: 'white', position: 'absolute', right: '8px', bottom: '8px', zIndex: 3}} onClick={this.showSetupModal}>4</div>
+      {/* <Icon type="question-circle"/>
+      <Icon type="question-circle" theme="outlined" />
+      <Icon type="question-circle" theme="filled" style={{color:'#fadb14'}}/>
+      <Icon type="question-circle" theme="twoTone" twoToneColor="#fadb14"/> */}
+      <div style={{
+        position: 'fixed', //关键
+        // height: '90px',
+        // width: '40px',
+        bottom:'30px',
+        left: '15%',
+        zIndex: 3,}} 
+        onClick={(e) => this.feedbackQ(lesson_slide_id,feedback.my,index.h,1)}
+      >{feedback.my ?
+        <Icon 
+        style={{fontSize:'1.5rem',verticalAlign: 'middle',marginRight:'10px',color:'#fadb14'}} 
+        type="question-circle"
+        theme="filled"
+        />
+        :
+        <Icon 
+        style={{fontSize:'1.5rem',verticalAlign: 'middle',marginRight:'10px'}} 
+        type="question-circle"
+        />
+        }
+        <span style={{fontSize:'1.5rem',verticalAlign: 'middle'}}>
+          {feedback.Q ? feedback.Q : ''}
+        </span>
+      </div> 
+      <div style={{
+        position: 'fixed', //关键
+        // height: '90px',
+        // width: '40px',
+        bottom:'30px',
+        left: '5%',
+        zIndex: 3,}} 
+        onClick={this.showModal('modal1')}
+      ><Icon style={{fontSize:'1.5rem'}} type="file-text" theme="outlined" /></div>
+      <div style={{color: 'white', position: 'absolute', right: '8px', bottom: '8px', zIndex: 3}} onClick={this.showSetupModal}></div>
       <Modal
           visible={this.state.setupModal}
           onClose={this.onClose('setupModal')}
@@ -160,9 +209,9 @@ class revealDemo extends React.Component {
           <div>
             <Button type={feedback.my == 0 ? "primary" :"ghost"} inline size="small" 
               onClick={this.feedbackQ}
-              style={{ marginRight: '4px' }}>疑问 {index.h ? slide_feedback[index.h].Q : 0}</Button>
+              style={{ marginRight: '4px' }}>疑问 {index.h && slide_feedback[index.h] ? slide_feedback[index.h].Q : 0}</Button>
             <Button type={feedback.my == 1 ? "primary" : "ghost"} inline size="small"
-              >赞同 {index.h ? slide_feedback[index.h].L : 0}</Button>
+              >赞同 {index.h  && slide_feedback[index.h] ? slide_feedback[index.h].L : 0}</Button>
             <WhiteSpace />
             <List>
               <TextareaItem

@@ -58,3 +58,46 @@ export const getSlideFeedback = (lesson_slide_id, student_id) => {
     }
 }
 
+export const updateQ = (lesson_slide_id,q,indexh,userid) => {
+    let url = target + "/updateQFeedback";
+    return (dispatch) => {
+        dispatch(getStatusStart());
+        return axios.post(url,{lesson_slide_id,q,indexh,userid})
+        .then(function (response) {
+            console.log(response.data);
+            dispatch({
+                type : 'UPDATE_SLIDE_FEEDBACK',
+                q : q,
+                indexh : indexh,
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
+}
+
+export const getFeedbackStu = (lesson_slide_id,indexh) => {
+    let url = target + "/getFeedbackStu";
+    return (dispatch) => {
+        dispatch(getStatusStart());
+        return axios.get(url,{
+            params:{
+                lesson_slide_id,
+                indexh,
+            }
+        })
+        .then(function (response) {
+            console.log(response.data);
+            dispatch({
+                type : 'GET_FEEDBACK_STU',
+                stus : response.data,
+
+            });
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    }
+}
+

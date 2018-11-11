@@ -2,6 +2,7 @@ import React from 'react';
 // import Question from 'bundle-loader?lazy&name=Question!../Component/Question.js'
 
 import revealDemo from '../Component/revealDemo.js'
+import teacherDemo from '../Component/teacherDemo.js'
 import { Route, IndexRoute } from 'react-router';
 import { requireAuthentication } from '../utils';
 
@@ -19,5 +20,6 @@ const component = (component) => {
 export default (
   	<Route path="mobile-reveal">
         <Route path="demo/:lesson_slide_id" component={revealDemo} />
+        <Route path="teacherdemo/:lesson_slide_id" component={teacherDemo} />
     </Route>
 );
